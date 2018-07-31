@@ -15,7 +15,7 @@ import string
 import xlrd
 import pdfkit
 
-app = Celery('tasks', broker='amqp://admin:password@rabbitmq/bubble')
+app = Celery('tasks', broker='amqp://admin:password@rabbitmq/falcon')
 
 IPP_URL = 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/%s/requests'
 

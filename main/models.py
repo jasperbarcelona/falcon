@@ -54,38 +54,14 @@ class AdminUser(db.Model):
     join_date = db.Column(db.String(50))
     created_at = db.Column(db.String(50))
 
-class Transaction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class Guardian(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
     client_no = db.Column(db.String(32))
-    date = db.Column(db.String(30))
-    time = db.Column(db.String(10))
-    status = db.Column(db.String(30))
-    cashier_id = db.Column(db.Integer())
-    cashier_name = db.Column(db.String(60))
-    customer_name = db.Column(db.String(60), nullable=True)
-    customer_msisdn = db.Column(db.String(30), nullable=True)
-    process_date = db.Column(db.String(30), default='')
-    process_time = db.Column(db.String(10), default='')
-    done_date = db.Column(db.String(30), default='')
-    done_time = db.Column(db.String(10), default='')
-    pickup_date = db.Column(db.String(30), default='')
-    pickup_time = db.Column(db.String(10), default='')
-    total = db.Column(db.String(30))
-    notes = db.Column(db.Text())
-    created_at = db.Column(db.String(50))
+    address_id = db.Column(db.String(60))
+    medium = db.Column(db.String(60))
 
-class Service(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class GuardianStudent(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
     client_no = db.Column(db.String(32))
-    name = db.Column(db.String(30))
-    price = db.Column(db.String(10))
-
-class TransactionItem(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    client_no = db.Column(db.String(32))
-    transaction_id = db.Column(db.Integer())
-    service_id = db.Column(db.Integer())
-    service_name = db.Column(db.String(30))
-    quantity = db.Column(db.String(10))
-    price = db.Column(db.String(10))
-    total = db.Column(db.String(10))
+    guardian_id = db.Column(db.String(30))
+    student_no = db.Column(db.String(30))

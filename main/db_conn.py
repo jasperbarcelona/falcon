@@ -7,7 +7,7 @@ app = flask.Flask(__name__)
 app.config.from_pyfile('config.py')
 app.secret_key = '0129383hfldcndidvs98r9t9438953894534k545lkn3kfnac98'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:temppass@db/bubble'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:temppass@db/falcon'
 # sqlite:///local.db
 # postgresql://admin:temppass@db/birdhouse'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True

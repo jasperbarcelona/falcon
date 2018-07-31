@@ -1,14 +1,14 @@
 version: '3'
 services:
-  # nginx:
-  #   restart: always
-  #   build: ./nginx
-  #   depends_on: 
-  #     - main
-  #   ports:
-  #     - "80:80"
-  #   links:
-  #     - main:main
+  nginx:
+    restart: always
+    build: ./nginx
+    depends_on: 
+      - main
+    ports:
+      - "80:80"
+    links:
+      - main:main
 
   db:
     restart: always
@@ -16,7 +16,7 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: temppass
-      POSTGRES_DB: bubble
+      POSTGRES_DB: falcon
     volumes:
       - ./main/data:/var/lib/postgresql/data
 
@@ -27,7 +27,7 @@ services:
       - ./main:/usr/src/app/
     ports:
       - "8000:8000"
-    command: /usr/local/bin/gunicorn -w 2 -b :8000 bubble:app
+    command: /usr/local/bin/gunicorn -w 2 -b :8000 falcon:app
     depends_on:
       - db
     links:
@@ -42,7 +42,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: password
-      RABBITMQ_DEFAULT_VHOST: bubble
+      RABBITMQ_DEFAULT_VHOST: falcon
 
   celery:
     restart: always
