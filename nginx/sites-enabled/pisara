@@ -2,6 +2,7 @@ server {
     listen 80;
     charset utf-8;
     access_log off;
+    server_name pisara.tech;
 
     location / {
         proxy_pass http://main:8000;
