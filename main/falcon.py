@@ -100,5 +100,11 @@ def messenger_webhook():
         ),200
 
 
+@app.route('/db/rebuild',methods=['GET','POST'])
+def rebuild_database():
+    db.drop_all()
+    db.create_all()
+
+
 if __name__ == '__main__':
     app.run(port=8000,debug=True,host='0.0.0.0')
