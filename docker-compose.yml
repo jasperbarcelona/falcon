@@ -9,6 +9,7 @@ services:
       - main
     ports:
       - "80:80"
+      - "443:443"
     links:
       - main:main
 
@@ -28,8 +29,8 @@ services:
     volumes:
       - ./main:/usr/src/app/
     ports:
-      - "80:80"
-    command: /usr/local/bin/gunicorn -w 2 -b :80 falcon:app
+      - "8000:8000"
+    command: /usr/local/bin/gunicorn -w 2 -b :8000 falcon:app
     depends_on:
       - db
     links:
