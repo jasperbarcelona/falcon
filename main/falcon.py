@@ -70,5 +70,14 @@ def index():
         ),200
 
 
+@app.route('/webhook',methods=['GET','POST'])
+@nocache
+def index():
+    return jsonify(
+        status='success',
+        message='OK'
+        ),200
+
+
 if __name__ == '__main__':
     app.run(port=8000,debug=True,host='0.0.0.0')
