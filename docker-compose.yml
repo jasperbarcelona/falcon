@@ -3,6 +3,8 @@ services:
   nginx:
     restart: always
     build: ./nginx
+    volumes:
+      - ./nginx/SSL:/etc/nginx/SSL/
     depends_on: 
       - main
     ports:
