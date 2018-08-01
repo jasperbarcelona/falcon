@@ -79,11 +79,14 @@ def messenger_webhook():
     # if data['hub.verify_token'] == verify_token:
     #     return data['hub.challenge']
 
-    data = flask.request.get_json()
+    data = request.json
+
+    sender = data['entry'][0]['messaging'][0]['sender']['id']
+    message = data['entry'][0]['messaging'][0]['message']['text']
 
     guardian = Guardian(
         client_no = 'lgmc2018',
-        address_id = data['sender']['id'],
+        address_id = sender,
         medium = 'facebook'
         )
     db.session.add(guardian)
@@ -92,7 +95,7 @@ def messenger_webhook():
     guardian_student = GuardianStudent(
         client_no = 'lgmc2018',
         guardian_id = guardian.id,
-        student_no = data['message']['text']
+        student_no = message
         )
 
     return jsonify(
