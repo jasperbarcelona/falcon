@@ -1,8 +1,12 @@
 server {
-    listen 80;
+    listen 443;
     charset utf-8;
     access_log off;
     server_name pisara.tech;
+    ssl on;
+    ssl_certificate pisara.tech.chained.crt;
+    ssl_certificate_key pisara.tech.key;
+    ssl_prefer_server_ciphers on;
 
     location / {
         proxy_pass http://main:8000;
