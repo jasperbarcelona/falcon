@@ -1,12 +1,16 @@
 server {
-    listen 443;
+    listen 80;
+    server_name pisara.tech;
+    rewrite ^/(.*) https://pisara.tech/$1 permanent;
+}
+
+server {
+    listen 443 ssl;
     charset utf-8;
     access_log off;
     server_name pisara.tech;
-    ssl on;
     ssl_certificate /etc/nginx/SSL/pisara.tech.chained.crt;
     ssl_certificate_key /etc/nginx/SSL/pisara.tech.key;
-    ssl_prefer_server_ciphers on;
 
     location / {
         proxy_pass http://main:8000;
