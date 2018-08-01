@@ -73,7 +73,7 @@ def index():
 @app.route('/facebook/webhook',methods=['GET','POST'])
 @nocache
 def messenger_webhook():
-    data = flask.request.form.to_dict()
+    data = flask.request.args.to_dict()
     verify_token = '1214'
 
     if data['hub.verify_token'] == verify_token:
