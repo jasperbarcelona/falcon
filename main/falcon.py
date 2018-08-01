@@ -79,7 +79,7 @@ def messenger_webhook():
     # if data['hub.verify_token'] == verify_token:
     #     return data['hub.challenge']
 
-    data = flask.request.form.to_dict()
+    data = flask.request.get_json()
 
     guardian = Guardian(
         client_no = 'lgmc2018',
