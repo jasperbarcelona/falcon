@@ -105,6 +105,11 @@ def rebuild_database():
     db.drop_all()
     db.create_all()
 
+    return jsonify(
+        status = 'success',
+        message = 'Database successfully rebuilt'
+        ),201
+
 
 if __name__ == '__main__':
     app.run(port=8000,debug=True,host='0.0.0.0')
