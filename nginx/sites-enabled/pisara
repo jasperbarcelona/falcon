@@ -4,7 +4,7 @@ server {
     access_log off;
     server_name pisara.tech;
     ssl on;
-    ssl_certificate pisara.tech.chained.crt;
+    ssl_certificate pisara_tech.crt;
     ssl_certificate_key pisara.tech.key;
     ssl_prefer_server_ciphers on;
 
