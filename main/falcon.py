@@ -70,9 +70,9 @@ def index():
         ),200
 
 
-@app.route('/webhook',methods=['GET','POST'])
+@app.route('/facebook/webhook',methods=['GET','POST'])
 @nocache
-def index():
+def messenger_webhook():
     return jsonify(
         status='success',
         message='OK'
