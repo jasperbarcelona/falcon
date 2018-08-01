@@ -73,11 +73,31 @@ def index():
 @app.route('/facebook/webhook',methods=['GET','POST'])
 @nocache
 def messenger_webhook():
-    data = flask.request.args.to_dict()
-    verify_token = '1214'
+    # data = flask.request.args.to_dict()
+    # verify_token = '1214'
 
-    if data['hub.verify_token'] == verify_token:
-        return data['hub.challenge']
+    # if data['hub.verify_token'] == verify_token:
+    #     return data['hub.challenge']
+
+    data = flask.request.form.to_dict()
+
+    guardian = Guardian(
+        client_no = 'lgmc2018',
+        address_id = data['sender']['id'],
+        medium = 'facebook'
+        )
+    db.session.add(guardian)
+    db.session.commit()
+
+    guardian_student = GuardianStudent(
+        client_no = 'lgmc2018',
+        guardian_id = guardian.id,
+        student_no = data['message']['text']
+        )
+
+    return jsonify(
+        success = True
+        ),200
 
 
 if __name__ == '__main__':
