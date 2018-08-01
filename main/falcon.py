@@ -38,7 +38,7 @@ import db_conn
 from db_conn import db, app
 from models import *
 
-IPP_URL = 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/%s/requests'
+ACCESS_TOKEN = 'EAAEOMP8YZAY0BAF3ao7EwxHNxzeGpf98NHE8jjkn64wNAMCsVhe5wfzcstjLZB3yTuyF4xL3FHvvx0WjRPjEp18T419IRP1H9YKlShuBQuANmMYXXb4nTeUDnllp0hq2tVPV1BXlwWpN1WoRfdKqhv6s0B5hYIOxt6Dxsyq0koqf5x2FGZC'
 
 class BubbleAdmin(sqla.ModelView):
     column_display_pk = True
@@ -59,6 +59,15 @@ def nocache(view):
         response.headers['Expires'] = '-1'
         return response    
     return update_wrapper(no_cache, view)
+
+def facebook_reply(user_id, message):
+    content = 'We will now process your request to receive notifications for student no: %s' % message
+    data = {
+        "messaging_type": 'RESPONSE',
+        "recipient": {'id': user_id},
+        "message": {'text': content}
+    }
+    resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
 
 
 @app.route('/',methods=['GET','POST'])
@@ -84,6 +93,8 @@ def messenger_webhook():
     sender = data['entry'][0]['messaging'][0]['sender']['id']
     message = data['entry'][0]['messaging'][0]['message']['text']
 
+    # student = Student.query.filter_by(student_no=message).first()
+
     guardian = Guardian(
         client_no = 'lgmc2018',
         address_id = sender,
@@ -98,6 +109,11 @@ def messenger_webhook():
         student_no = message
         )
 
+    db.session.add(guardian_student)
+    db.session.commit()
+
+    facebook_reply(sender,message)
+
     return jsonify(
         success = True
         ),200
@@ -107,6 +123,14 @@ def messenger_webhook():
 def rebuild_database():
     db.drop_all()
     db.create_all()
+
+    student = Student(
+        client_no='lgmc2018',
+        name='Jasper Barcelona',
+        student_no='2011334281'
+        )
+    db.session.add(student)
+    db.session.commit()
 
     return jsonify(
         status = 'success',

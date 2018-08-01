@@ -60,6 +60,12 @@ class Guardian(db.Model):
     address_id = db.Column(db.String(60))
     medium = db.Column(db.String(60))
 
+class Student(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    client_no = db.Column(db.String(32))
+    name = db.Column(db.String(100))
+    student_no = db.Column(db.String(30))
+
 class GuardianStudent(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     client_no = db.Column(db.String(32))
