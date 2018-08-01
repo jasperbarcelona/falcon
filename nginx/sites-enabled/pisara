@@ -9,7 +9,7 @@ server {
     charset utf-8;
     access_log off;
     server_name pisara.tech;
-    ssl_certificate /etc/nginx/SSL/pisara.tech.chained.crt;
+    ssl_certificate /etc/nginx/SSL/pisara_tech.crt;
     ssl_certificate_key /etc/nginx/SSL/pisara.tech.key;
 
     location / {
