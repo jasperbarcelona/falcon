@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name pisara.tech;
+    server_name api.pisara.tech;
     rewrite ^/(.*) https://api.pisara.tech/$1 permanent;
 }
 
