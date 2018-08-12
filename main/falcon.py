@@ -101,11 +101,12 @@ def send_svc(msisdn,token):
     r = requests.post(IPP_URL%SHORTCODE,message_options)
 
 def get_user_name(sender_id):
-    args = {
-        'fields': 'first_name,last_name',
-        'access_token': ACCESS_TOKEN
-    }
-    r = requests.post("https://graph.facebook.com/%s"%sender_id,params=args)
+    params = dict(
+        fields='first_name,last_name',
+        access_token=ACCESS_TOKEN
+    )
+
+    r = requests.post("https://graph.facebook.com/%s"%sender_id,params=params)
     data = r.json()
     return data
 
