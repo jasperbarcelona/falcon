@@ -70,7 +70,8 @@ class Driver(db.Model):
 class Rider(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     facebook_id = db.Column(db.Text())
-    name = db.Column(db.String(100))
+    first_name = db.Column(db.String(100))
+    last_name = db.Column(db.String(100))
     address = db.Column(db.Text())
     msisdn = db.Column(db.String(20))
     id_path = db.Column(db.Text())

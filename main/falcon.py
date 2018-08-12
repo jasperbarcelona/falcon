@@ -90,6 +90,56 @@ def facebook_quick_reply_msisdn(user_id, message):
     }
     resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
 
+def generate_clone_svc(user_id):
+    while unique == False:
+    new_token = str(uuid.uuid4().fields[-1])[:6]
+    existing = SVC.query.filter_by(token=new_token).first()
+    if not existing or existing == None:
+        unique = True
+    return new_token
+
+
+def facebook_quick_reply_svc(user_id, message):
+    tokens = []
+    real_token = SVC.query.filter_by(facebook_id=user_id).first().token
+    tokens.append(generate_clone_svc())
+    tokens.append(generate_clone_svc())
+    tokens.append(real_token)
+
+    choice_1 = random.choice(tokens)
+    tokens.remove(choice_1)
+    choice_2 = random.choice(tokens)
+    tokens.remove(choice_2)
+    choice_3 = random.choice(tokens)
+    tokens.remove(choice_3)
+
+    data = {
+        "messaging_type": 'RESPONSE',
+        "recipient": {'id': user_id},
+        "message": {
+        'text': message,
+        "quick_replies":[
+            {
+            "content_type":"text",
+            "title":choice_1,
+            "payload":choice_1
+            },
+            {
+            "content_type":"text",
+            "title":choice_2,
+            "payload":choice_2
+            },
+            {
+            "content_type":"text",
+            "title":choice_3,
+            "payload":choice_3
+            },
+        ]
+        },
+    }
+    resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
+
+
 def send_svc(msisdn,token):
     content = 'Your Zundo verification code is: %s' % token
     message_options = {
@@ -109,7 +159,7 @@ def get_user_name(sender_id):
 
     r = requests.get("https://graph.facebook.com/%s"%sender_id,params=params)
     data = r.json()
-    return '%s %s' % (data['first_name'],data['last_name'])
+    return data
 
 
 @app.route('/',methods=['GET','POST'])
@@ -148,18 +198,20 @@ def messenger_webhook():
 
     if 'postback' in data['entry'][0]['messaging'][0]:
         if data['entry'][0]['messaging'][0]['postback']['payload'] == 'GET_STARTED_PAYLOAD':
-            rider.name = get_user_name(sender_id)
-            db.session.commit()
+            if rider.reg_status != 'done':
+                user_info = get_user_name(sender_id)
+                rider.first_name = user_info['first_name']
+                rider.last_name = user_info['last_name']
+                rider.reg_status = 'msisdn'
+                db.session.commit()
+                content = 'Hi, %s! Looks like it\'s you first time here. Let\'s get to know each other first, what\'s your mobile number?' % rider.name
+                facebook_quick_reply_msisdn(sender_id,content)
             return jsonify(
                 success = True
                 ),200
 
         if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
-            if rider.reg_status != 'done':
-                rider.reg_status = 'msisdn'
-                db.session.commit()
-                content = 'Hi, %s! Looks like it\'s you first time here. Let\'s get to know each other first, what\'s your mobile number?' % rider.name
-                facebook_quick_reply_msisdn(sender_id,content)
+            
             return jsonify(
                 success = True
                 ),200
@@ -178,18 +230,18 @@ def messenger_webhook():
         db.session.add(svc)
         db.session.commit()
         send_svc(rider.msisdn,svc.token)
-        content = 'We sent a one time verification code to your mobile number. Please send the code back to us now.'
-        facebook_reply(sender_id,content)
+        content = 'We sent a one time verification code to your mobile number. Which one is it?.'
+        facebook_quick_reply_svc(sender_id,content)
         return jsonify(
             success = True
             ),200
 
     if rider.reg_status == 'svc':
-        message = data['entry'][0]['messaging'][0]['message']['text']
+        svc = data['entry'][0]['messaging'][0]['message']['quick_reply']['payload']
         svc = SVC.query.filter_by(user_id=rider.id, token=message).first()
         if not svc or svc == None:
             content = 'Invalid verification code. Please try again.'
-            facebook_reply(sender_id,content)
+            facebook_quick_reply_svc(sender_id,content)
             return jsonify(
                 success = True
                 ),200
