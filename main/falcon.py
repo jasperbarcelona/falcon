@@ -164,19 +164,8 @@ def messenger_webhook():
                 success = True
                 ),200
 
-    # if rider.reg_status == 'name':
-    #     message = data['entry'][0]['messaging'][0]['message']['text']
-    #     rider.name = message
-    #     rider.reg_status = 'msisdn'
-    #     db.session.commit()
-    #     content = 'What\'s your mobile number?'
-    #     facebook_reply(sender_id,content)
-    #     return jsonify(
-    #         success = True
-    #         ),200
-
     if rider.reg_status == 'msisdn':
-        msisdn = data['entry'][0]['messaging'][0]['postback']['payload']
+        msisdn = data['entry'][0]['messaging'][0]['message']['quick_reply']['payload']
         rider.msisdn = msisdn
         rider.reg_status = 'svc'
         db.session.commit()
