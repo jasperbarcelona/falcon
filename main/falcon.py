@@ -213,14 +213,6 @@ def rebuild_database():
     db.drop_all()
     db.create_all()
 
-    student = Student(
-        client_no='lgmc2018',
-        name='Jasper Barcelona',
-        student_no='2011334281'
-        )
-    db.session.add(student)
-    db.session.commit()
-
     return jsonify(
         status = 'success',
         message = 'Database successfully rebuilt'
