@@ -79,7 +79,7 @@ def facebook_quick_reply_msisdn(user_id, message):
     data = {
         "messaging_type": 'RESPONSE',
         "recipient": {'id': user_id},
-        "message": {'text': content},
+        "message": {'text': message},
         "quick_replies":[
           {
             "content_type":"user_phone_number"
