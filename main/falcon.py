@@ -76,7 +76,6 @@ def facebook_reply(user_id, content):
     resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
 
 def facebook_quick_reply_msisdn(user_id, message):
-    content = 'We will now process your request to receive notifications for student no: %s' % message
     data = {
         "messaging_type": 'RESPONSE',
         "recipient": {'id': user_id},
@@ -106,9 +105,9 @@ def get_user_name(sender_id):
         access_token=ACCESS_TOKEN
     )
 
-    r = requests.post("https://graph.facebook.com/%s"%sender_id,params=params)
+    r = requests.get("https://graph.facebook.com/%s"%sender_id,params=params)
     data = r.json()
-    return data
+    return '%s %s' % (data['first_name'],data['last_name'])
 
 
 @app.route('/',methods=['GET','POST'])
