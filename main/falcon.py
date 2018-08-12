@@ -92,10 +92,10 @@ def facebook_quick_reply_msisdn(user_id, message):
 
 def generate_clone_svc(user_id):
     while unique == False:
-    new_token = str(uuid.uuid4().fields[-1])[:6]
-    existing = SVC.query.filter_by(token=new_token).first()
-    if not existing or existing == None:
-        unique = True
+        new_token = str(uuid.uuid4().fields[-1])[:6]
+        existing = SVC.query.filter_by(token=new_token).first()
+        if not existing or existing == None:
+            unique = True
     return new_token
 
 
