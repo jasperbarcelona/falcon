@@ -204,7 +204,7 @@ def messenger_webhook():
                 rider.last_name = user_info['last_name']
                 rider.reg_status = 'msisdn'
                 db.session.commit()
-                content = 'Hi, %s! Looks like it\'s you first time here. Let\'s get to know each other first, what\'s your mobile number?' % rider.name
+                content = 'Hi, %s! Looks like it\'s you first time here. Let\'s get to know each other first, what\'s your mobile number?' % rider.first_name
                 facebook_quick_reply_msisdn(sender_id,content)
             return jsonify(
                 success = True
