@@ -83,12 +83,14 @@ def facebook_quick_reply_msisdn(user_id, message):
         'text': message,
         "quick_replies":[
           {
-            "content_type":"user_phone_number"
+            "content_type":"location"
           }
         ]
         },
     }
     resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
+
+facebook_quick_reply_pickup
 
 def generate_clone_svc():
     unique = False
@@ -212,7 +214,16 @@ def messenger_webhook():
                 ),200
 
         if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
-            
+            new_booking = Booking(
+                rider_id=sender_id,
+                date=datetime.datetime.now().strftime('%B %d, %Y'),
+                booking_status='pickup_data',
+                created_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
+                )
+            db.session.add(new_booking)
+            db.session.commit()
+            content = 'Where do you want to be picked up?'
+            facebook_quick_reply_pickup(sender_id,content)
             return jsonify(
                 success = True
                 ),200
@@ -246,36 +257,36 @@ def messenger_webhook():
             return jsonify(
                 success = True
                 ),200
-        svc.status = 'Done'
-        rider.reg_status = 'id_pic'
-        db.session.commit()
-        content = 'Phone verification successful! You\'re almost there. We just need a picture of 1 valid ID for the safety of our drivers. :)'
-        facebook_reply(sender_id,content)
-        return jsonify(
-            success = True
-            ),200
-
-    if rider.reg_status == 'id_pic':
-        image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
-        rider.id_path = image
-        rider.reg_status = 'selfie'
-        db.session.commit()
-        content = 'Last step! Please send a selfie of you holding the valid ID you just sent us.'
-        facebook_reply(sender_id,content)
-        return jsonify(
-            success = True
-            ),200
-
-    if rider.reg_status == 'selfie':
-        image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
-        rider.selfie_path = image
+        db.session.delete(svc)
         rider.reg_status = 'done'
         db.session.commit()
-        content = 'Okay, we\'re good to go! Where do you want to be picked up?'
-        facebook_quick_reply()
+        content = 'Verification successful! You can now enjoy Zundo. Just click "Book a Ride" below. Have fun! :)'
+        facebook_reply(sender_id,content)
         return jsonify(
             success = True
             ),200
+
+    # if rider.reg_status == 'id_pic':
+    #     image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
+    #     rider.id_path = image
+    #     rider.reg_status = 'selfie'
+    #     db.session.commit()
+    #     content = 'Last step! Please send a selfie of you holding the valid ID you just sent us.'
+    #     facebook_reply(sender_id,content)
+    #     return jsonify(
+    #         success = True
+    #         ),200
+
+    # if rider.reg_status == 'selfie':
+    #     image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
+    #     rider.selfie_path = image
+    #     rider.reg_status = 'done'
+    #     db.session.commit()
+    #     content = 'Okay, we\'re good to go! Where do you want to be picked up?'
+    #     facebook_quick_reply()
+    #     return jsonify(
+    #         success = True
+    #         ),200
 
 
 @app.route('/db/rebuild',methods=['GET','POST'])

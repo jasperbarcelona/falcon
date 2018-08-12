@@ -92,6 +92,7 @@ class Booking(db.Model):
     book_time = db.Column(db.String(50))
     driver_arrival_time = db.Column(db.String(50))
     dest_arrival_time = db.Column(db.String(50))
+    booking_status = db.Column(db.String(30))
     created_at = db.Column(db.String(50))
 
 class SVC(db.Model):
