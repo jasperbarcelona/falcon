@@ -238,7 +238,7 @@ def messenger_webhook():
 
     if rider.reg_status == 'svc':
         svc = data['entry'][0]['messaging'][0]['message']['quick_reply']['payload']
-        svc = SVC.query.filter_by(user_id=rider.id, token=message).first()
+        svc = SVC.query.filter_by(user_id=rider.id, token=svc).first()
         if not svc or svc == None:
             content = 'Invalid verification code. Please try again.'
             facebook_quick_reply_svc(sender_id,content)
