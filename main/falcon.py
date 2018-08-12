@@ -102,7 +102,7 @@ def send_svc(msisdn,token):
 
 def get_user_name(sender_id):
     args = {
-        'fields': 'first_name,last_name'
+        'fields': 'first_name,last_name',
         'access_token': ACCESS_TOKEN
     }
     requests.post("https://graph.facebook.com/%s"%sender_id,params=args)
