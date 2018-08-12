@@ -228,7 +228,8 @@ def messenger_webhook():
 
         if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
             new_booking = Booking(
-                rider_id=sender_id,
+                rider_id=rider.id,
+                rider_facebook_id=sender_id,
                 date=datetime.datetime.now().strftime('%B %d, %Y'),
                 booking_status='pickup_data',
                 created_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')

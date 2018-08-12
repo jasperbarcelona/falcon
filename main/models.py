@@ -82,6 +82,7 @@ class Rider(db.Model):
 class Booking(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     rider_id = db.Column(db.Integer())
+    rider_facebook_id = db.Column(db.Text())
     driver_id = db.Column(db.Integer())
     pickup = db.Column(db.Text())
     destination = db.Column(db.Text())
