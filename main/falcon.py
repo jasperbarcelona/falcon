@@ -105,8 +105,8 @@ def get_user_name(sender_id):
         'fields': 'first_name,last_name',
         'access_token': ACCESS_TOKEN
     }
-    requests.post("https://graph.facebook.com/%s"%sender_id,params=args)
-    data = resp.json()
+    r = requests.post("https://graph.facebook.com/%s"%sender_id,params=args)
+    data = r.json()
     return '%s %s' % (data['first_name'], data['last_name'])
 
 
