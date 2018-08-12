@@ -92,3 +92,10 @@ class Booking(db.Model):
     driver_arrival_time = db.Column(db.String(50))
     dest_arrival_time = db.Column(db.String(50))
     created_at = db.Column(db.String(50))
+
+class SVC(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    user_id = db.Column(db.Integer())
+    facebook_id = db.Column(db.Integer())
+    token = db.Column(db.String(10))
+    created_at = db.Column(db.String(50))
