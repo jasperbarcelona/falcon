@@ -52,8 +52,9 @@ class BubbleAdmin(sqla.ModelView):
 admin = Admin(app, name='bubble')
 admin.add_view(BubbleAdmin(Client, db.session))
 admin.add_view(BubbleAdmin(AdminUser, db.session))
-admin.add_view(BubbleAdmin(Guardian, db.session))
-admin.add_view(BubbleAdmin(GuardianStudent, db.session))
+admin.add_view(BubbleAdmin(Driver, db.session))
+admin.add_view(BubbleAdmin(Rider, db.session))
+admin.add_view(BubbleAdmin(Booking, db.session))
 
 def nocache(view):
     @wraps(view)
