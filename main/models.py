@@ -54,20 +54,41 @@ class AdminUser(db.Model):
     join_date = db.Column(db.String(50))
     created_at = db.Column(db.String(50))
 
-class Guardian(db.Model):
+class Driver(db.Model):
     id = db.Column(db.Integer,primary_key=True)
-    client_no = db.Column(db.String(32))
-    address_id = db.Column(db.String(60))
-    medium = db.Column(db.String(60))
-
-class Student(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
-    client_no = db.Column(db.String(32))
+    plate_no = db.Column(db.String(10))
     name = db.Column(db.String(100))
-    student_no = db.Column(db.String(30))
+    address = db.Column(db.Text())
+    msisdn = db.Column(db.String(20))
+    dl_no = db.Column(db.String(60))
+    car_make = db.Column(db.String(60))
+    car_model = db.Column(db.String(60))
+    car_color = db.Column(db.String(60))
+    status = db.Column(db.String(20))
+    created_at = db.Column(db.String(50))
 
-class GuardianStudent(db.Model):
+class Rider(db.Model):
     id = db.Column(db.Integer,primary_key=True)
-    client_no = db.Column(db.String(32))
-    guardian_id = db.Column(db.String(30))
-    student_no = db.Column(db.String(30))
+    facebook_id = db.Column(db.Text())
+    name = db.Column(db.String(100))
+    address = db.Column(db.Text())
+    msisdn = db.Column(db.String(20))
+    id_path = db.Column(db.Text())
+    selfie_path = db.Column(db.Text())
+    reg_status = db.Column(db.String(20))
+    created_at = db.Column(db.String(50))
+
+class Booking(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    rider_id = db.Column(db.Integer())
+    driver_id = db.Column(db.Integer())
+    pickup = db.Column(db.Text())
+    destination = db.Column(db.Text())
+    km = db.Column(db.String(10))
+    minutes = db.Column(db.String(10))
+    fare = db.Column(db.Integer())
+    date = db.Column(db.String(50))
+    book_time = db.Column(db.String(50))
+    driver_arrival_time = db.Column(db.String(50))
+    dest_arrival_time = db.Column(db.String(50))
+    created_at = db.Column(db.String(50))

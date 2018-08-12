@@ -39,6 +39,12 @@ from db_conn import db, app
 from models import *
 
 ACCESS_TOKEN = 'EAAEOMP8YZAY0BAF3ao7EwxHNxzeGpf98NHE8jjkn64wNAMCsVhe5wfzcstjLZB3yTuyF4xL3FHvvx0WjRPjEp18T419IRP1H9YKlShuBQuANmMYXXb4nTeUDnllp0hq2tVPV1BXlwWpN1WoRfdKqhv6s0B5hYIOxt6Dxsyq0koqf5x2FGZC'
+IPP_URL = 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/%s/requests'
+APP_ID = 'EGXMuB5eEgCMLTKxExieqkCGeGeGuBon'
+APP_SECRET = 'f3e1ab30e23ea7a58105f058318785ae236378d1d9ebac58fe8b42e1e239e1c3'
+PASSPHRASE = '24BUubukMQ'
+SHORTCODE = '21588479'
+
 
 class BubbleAdmin(sqla.ModelView):
     column_display_pk = True
@@ -60,7 +66,15 @@ def nocache(view):
         return response    
     return update_wrapper(no_cache, view)
 
-def facebook_reply(user_id, message):
+def facebook_reply(user_id, content):
+    data = {
+        "messaging_type": 'RESPONSE',
+        "recipient": {'id': user_id},
+        "message": {'text': content}
+    }
+    resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
+
+def facebook_quick_reply(user_id, message):
     content = 'We will now process your request to receive notifications for student no: %s' % message
     data = {
         "messaging_type": 'RESPONSE',
@@ -68,6 +82,17 @@ def facebook_reply(user_id, message):
         "message": {'text': content}
     }
     resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
+
+def send_svc(msisdn,token):
+    content = 'Your Zundo verification code is: %s' % token
+    message_options = {
+        'app_id': APP_ID,
+        'app_secret': APP_SECRET,
+        'message': content,
+        'address': msisdn,
+        'passphrase': PASSPHRASE,
+    }
+    r = requests.post(IPP_URL%SHORTCODE,message_options)           
 
 
 @app.route('/',methods=['GET','POST'])
@@ -90,33 +115,96 @@ def messenger_webhook():
 
     data = request.json
 
-    sender = data['entry'][0]['messaging'][0]['sender']['id']
+    sender_id = data['entry'][0]['messaging'][0]['sender']['id']
     message = data['entry'][0]['messaging'][0]['message']['text']
+    image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
 
     # student = Student.query.filter_by(student_no=message).first()
+    rider = Rider.query.filter_by(facebook_id=sender_id).first()
+    if not rider or rider == None:
+        rider = Rider(
+            facebook_id=sender_id,
+            reg_status='none',
+            created_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
+            )
+        db.session.add(rider)
+        db.session.commit()
 
-    guardian = Guardian(
-        client_no = 'lgmc2018',
-        address_id = sender,
-        medium = 'facebook'
-        )
-    db.session.add(guardian)
-    db.session.commit()
+    if message == 'Book a Ride':
+        if rider.reg_status != 'done':
+            rider.reg_status = 'name'
+            db.session.commit()
+            content = 'Looks like it\'s you first time here. Let\'s get to know each other first, what\'s your name (full name)?'
+            facebook_reply(sender_id,content)
+        return jsonify(
+            success = True
+            ),200
 
-    guardian_student = GuardianStudent(
-        client_no = 'lgmc2018',
-        guardian_id = guardian.id,
-        student_no = message
-        )
+    if rider.reg_status == 'name':
+        rider.name = message
+        rider.reg_status = 'msisdn'
+        db.session.commit()
+        content = 'What\'s your mobile number?'
+        facebook_reply(sender_id,content)
+        return jsonify(
+            success = True
+            ),200
 
-    db.session.add(guardian_student)
-    db.session.commit()
+    if rider.reg_status == 'msisdn':
+        rider.msisdn = message
+        rider.reg_status = 'svc'
+        db.session.commit()
+        svc = SVC(
+            user_id = rider.id,
+            facebook_id = rider.facebook_id,
+            token = str(uuid.uuid4().fields[-1])[:6],
+            created_at = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
+            )
+        db.session.add(svc)
+        db.session.commit()
+        send_svc(rider.msisdn,svc.token)
+        content = 'We sent a one time verification code to your mobile number. Please send the code back to us now.'
+        facebook_reply(sender_id,content)
+        return jsonify(
+            success = True
+            ),200
 
-    facebook_reply(sender,message)
+    if rider.reg_status == 'svc':
+        svc = SVC.query.filter_by(user_id=rider.id, token=message).first()
+        if not svc or svc == None:
+            content = 'Invalid verification code. Please try again.'
+            facebook_reply(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
+        svc.status = 'Done'
+        rider.reg_status = 'id_pic'
+        db.session.commit()
+        content = 'Phone verification successful! You\'re almost there. We just need a picture of 1 valid ID for the safety of our drivers. :)'
+        facebook_reply(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
 
-    return jsonify(
-        success = True
-        ),200
+    if rider.reg_status == 'id_pic':
+        rider.id_path = image
+        rider.reg_status = 'selfie'
+        db.session.commit()
+        content = 'Last step! Please send a selfie of you holding the valid ID you just sent us.'
+        facebook_reply(sender_id,content)
+        return jsonify(
+            success = True
+            ),200
+
+    if rider.reg_status == 'selfie':
+        rider.selfie_path = image
+        rider.reg_status = 'done'
+        db.session.commit()
+        content = 'Okay, we\'re good to go! Where do you want to be picked up?'
+        facebook_quick_reply()
+        return jsonify(
+            success = True
+            ),200
 
 
 @app.route('/db/rebuild',methods=['GET','POST'])
