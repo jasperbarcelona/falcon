@@ -140,8 +140,10 @@ def messenger_webhook():
             return jsonify(
                 success = True
                 ),200
+        return jsonify(
+                success = True
+                ),200
 
-    
     if rider.reg_status == 'name':
         message = data['entry'][0]['messaging'][0]['message']['text']
         rider.name = message
