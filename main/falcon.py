@@ -83,14 +83,27 @@ def facebook_quick_reply_msisdn(user_id, message):
         'text': message,
         "quick_replies":[
           {
-            "content_type":"location"
+            "content_type":"user_phone_number"
           }
         ]
         },
     }
     resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
 
-facebook_quick_reply_pickup
+def facebook_quick_reply_pickup(user_id, message):
+    data = {
+        "messaging_type": 'RESPONSE',
+        "recipient": {'id': user_id},
+        "message": {
+        'text': message,
+        "quick_replies":[
+          {
+            "content_type":"location"
+          }
+        ]
+        },
+    }
+    resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
 
 def generate_clone_svc():
     unique = False
