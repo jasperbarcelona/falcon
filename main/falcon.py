@@ -118,7 +118,6 @@ def messenger_webhook():
     data = request.json
 
     sender_id = data['entry'][0]['messaging'][0]['sender']['id']
-    message = data['entry'][0]['messaging'][0]['message']['text']
 
     # student = Student.query.filter_by(student_no=message).first()
     rider = Rider.query.filter_by(facebook_id=sender_id).first()
@@ -131,17 +130,20 @@ def messenger_webhook():
         db.session.add(rider)
         db.session.commit()
 
-    if message == 'Book a Ride':
-        if rider.reg_status != 'done':
-            rider.reg_status = 'name'
-            db.session.commit()
-            content = 'Looks like it\'s you first time here. Let\'s get to know each other first, what\'s your name (full name)?'
-            facebook_reply(sender_id,content)
-        return jsonify(
-            success = True
-            ),200
+    if 'postback' in data['entry'][0]['messaging'][0]:
+        if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
+            if rider.reg_status != 'done':
+                rider.reg_status = 'name'
+                db.session.commit()
+                content = 'Looks like it\'s you first time here. Let\'s get to know each other first, what\'s your name (full name)?'
+                facebook_reply(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
 
+    
     if rider.reg_status == 'name':
+        message = data['entry'][0]['messaging'][0]['message']['text']
         rider.name = message
         rider.reg_status = 'msisdn'
         db.session.commit()
@@ -152,6 +154,7 @@ def messenger_webhook():
             ),200
 
     if rider.reg_status == 'msisdn':
+        message = data['entry'][0]['messaging'][0]['message']['text']
         rider.msisdn = message
         rider.reg_status = 'svc'
         db.session.commit()
@@ -171,6 +174,7 @@ def messenger_webhook():
             ),200
 
     if rider.reg_status == 'svc':
+        message = data['entry'][0]['messaging'][0]['message']['text']
         svc = SVC.query.filter_by(user_id=rider.id, token=message).first()
         if not svc or svc == None:
             content = 'Invalid verification code. Please try again.'
