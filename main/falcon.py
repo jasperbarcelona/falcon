@@ -182,9 +182,9 @@ def messenger_webhook():
         db.session.commit()
         content = 'Phone verification successful! You\'re almost there. We just need a picture of 1 valid ID for the safety of our drivers. :)'
         facebook_reply(sender_id,content)
-            return jsonify(
-                success = True
-                ),200
+        return jsonify(
+            success = True
+            ),200
 
     if rider.reg_status == 'id_pic':
         rider.id_path = image
