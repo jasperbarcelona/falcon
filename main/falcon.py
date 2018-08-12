@@ -119,7 +119,6 @@ def messenger_webhook():
 
     sender_id = data['entry'][0]['messaging'][0]['sender']['id']
     message = data['entry'][0]['messaging'][0]['message']['text']
-    image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
 
     # student = Student.query.filter_by(student_no=message).first()
     rider = Rider.query.filter_by(facebook_id=sender_id).first()
@@ -189,6 +188,7 @@ def messenger_webhook():
             ),200
 
     if rider.reg_status == 'id_pic':
+        image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
         rider.id_path = image
         rider.reg_status = 'selfie'
         db.session.commit()
@@ -199,6 +199,7 @@ def messenger_webhook():
             ),200
 
     if rider.reg_status == 'selfie':
+        image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
         rider.selfie_path = image
         rider.reg_status = 'done'
         db.session.commit()
