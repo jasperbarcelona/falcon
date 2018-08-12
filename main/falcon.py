@@ -156,7 +156,7 @@ def messenger_webhook():
 
         if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
             if rider.reg_status != 'done':
-                rider.reg_status = 'name'
+                rider.reg_status = 'msisdn'
                 db.session.commit()
                 content = 'Hi, %s! Looks like it\'s you first time here. Let\'s get to know each other first, what\'s your mobile number?' % rider.name
                 facebook_quick_reply_msisdn(sender_id,content)
