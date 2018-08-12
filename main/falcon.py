@@ -107,7 +107,7 @@ def get_user_name(sender_id):
     }
     r = requests.post("https://graph.facebook.com/%s"%sender_id,params=args)
     data = r.json()
-    return '%s %s' % (data['first_name'], data['last_name'])
+    return data
 
 
 @app.route('/',methods=['GET','POST'])
