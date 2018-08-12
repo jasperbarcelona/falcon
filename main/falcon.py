@@ -75,12 +75,17 @@ def facebook_reply(user_id, content):
     }
     resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
 
-def facebook_quick_reply(user_id, message):
+def facebook_quick_reply_msisdn(user_id, message):
     content = 'We will now process your request to receive notifications for student no: %s' % message
     data = {
         "messaging_type": 'RESPONSE',
         "recipient": {'id': user_id},
-        "message": {'text': content}
+        "message": {'text': content},
+        "quick_replies":[
+          {
+            "content_type":"user_phone_number"
+          }
+        ]
     }
     resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
 
@@ -93,7 +98,16 @@ def send_svc(msisdn,token):
         'address': msisdn,
         'passphrase': PASSPHRASE,
     }
-    r = requests.post(IPP_URL%SHORTCODE,message_options)           
+    r = requests.post(IPP_URL%SHORTCODE,message_options)
+
+def get_user_name(sender_id):
+    args = {
+        'fields': 'first_name,last_name'
+        'access_token': ACCESS_TOKEN
+    }
+    requests.post("https://graph.facebook.com/%s"%sender_id,params=args)
+    data = resp.json()
+    return '%s %s' % (data['first_name'], data['last_name'])
 
 
 @app.route('/',methods=['GET','POST'])
@@ -131,33 +145,37 @@ def messenger_webhook():
         db.session.commit()
 
     if 'postback' in data['entry'][0]['messaging'][0]:
+        if data['entry'][0]['messaging'][0]['postback']['payload'] == 'GET_STARTED_PAYLOAD':
+            rider.name = get_user_name(sender_id)
+            db.session.commit()
+            return jsonify(
+                success = True
+                ),200
+
         if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
             if rider.reg_status != 'done':
                 rider.reg_status = 'name'
                 db.session.commit()
-                content = 'Looks like it\'s you first time here. Let\'s get to know each other first, what\'s your name (full name)?'
-                facebook_reply(sender_id,content)
+                content = 'Hi, %s! Looks like it\'s you first time here. Let\'s get to know each other first, what\'s your mobile number?' % rider.name
+                facebook_quick_reply_msisdn(sender_id,content)
             return jsonify(
                 success = True
                 ),200
-        return jsonify(
-                success = True
-                ),200
 
-    if rider.reg_status == 'name':
-        message = data['entry'][0]['messaging'][0]['message']['text']
-        rider.name = message
-        rider.reg_status = 'msisdn'
-        db.session.commit()
-        content = 'What\'s your mobile number?'
-        facebook_reply(sender_id,content)
-        return jsonify(
-            success = True
-            ),200
+    # if rider.reg_status == 'name':
+    #     message = data['entry'][0]['messaging'][0]['message']['text']
+    #     rider.name = message
+    #     rider.reg_status = 'msisdn'
+    #     db.session.commit()
+    #     content = 'What\'s your mobile number?'
+    #     facebook_reply(sender_id,content)
+    #     return jsonify(
+    #         success = True
+    #         ),200
 
     if rider.reg_status == 'msisdn':
-        message = data['entry'][0]['messaging'][0]['message']['text']
-        rider.msisdn = message
+        msisdn = data['entry'][0]['messaging'][0]['postback']['payload']
+        rider.msisdn = msisdn
         rider.reg_status = 'svc'
         db.session.commit()
         svc = SVC(
