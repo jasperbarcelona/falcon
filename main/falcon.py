@@ -399,7 +399,7 @@ def messenger_webhook():
                 ),200
         if data['entry'][0]['messaging'][0]['attachments'][0]['type'] != 'location':
             if booking.booking_status == 'pickup_data':
-                content = 'Please pin your pickup location.'
+                content = 'Please pin your pickup location here.'
                 facebook_quick_reply_pickup(sender_id,content)
             elif booking.booking_status == 'destination_data':
                 content = 'Please pin your destination.'
