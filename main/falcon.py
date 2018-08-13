@@ -408,8 +408,8 @@ def messenger_webhook():
                 success = True
                 ),200
         if booking.booking_status == 'pickup_data':
-            booking.pickup_lat = data['entry'][0]['messaging'][0]['attachments'][0]['payload']['coordinates']['lat']
-            booking.pickup_long = data['entry'][0]['messaging'][0]['attachments'][0]['payload']['coordinates']['long']
+            booking.pickup_lat = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['coordinates']['lat']
+            booking.pickup_long = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['coordinates']['long']
             booking.booking_status = 'destination_data'
             db.session.commit()
             content = 'Where do you want to go?'
@@ -426,8 +426,8 @@ def messenger_webhook():
                 return jsonify(
                     success = True
                     ),200
-            booking.destination_lat = data['entry'][0]['messaging'][0]['attachments'][0]['payload']['coordinates']['lat']
-            booking.destination_long = data['entry'][0]['messaging'][0]['attachments'][0]['payload']['coordinates']['long']
+            booking.destination_lat = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['coordinates']['lat']
+            booking.destination_long = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['coordinates']['long']
             booking.booking_status = 'calculate'
             db.session.commit()
             content = 'Calculating fare...'
