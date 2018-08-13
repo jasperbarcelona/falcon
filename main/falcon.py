@@ -381,9 +381,19 @@ def messenger_webhook():
 
     if rider.reg_status == 'done':
         booking = Booking.query.filter(Booking.rider_id==rider.id, Booking.booking_status!='done').first()
-        if not booking or booking == None or 'attachments' not in data['entry'][0]['messaging'][0]:
+        if not booking or booking == None:
             content = 'To start looking for drivers, please click "Book a Ride" below.'
             facebook_reply(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
+        if 'attachments' not in data['entry'][0]['messaging'][0]:
+            if booking.booking_status == 'pickup_data':
+                content = 'Please pin your pickup location.'
+                facebook_quick_reply_pickup(sender_id,content)
+            elif booking.booking_status == 'destination_data':
+                content = 'Please pin your destination.'
+                facebook_quick_reply_destination(sender_id,content)
             return jsonify(
                 success = True
                 ),200
