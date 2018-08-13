@@ -356,6 +356,9 @@ def messenger_webhook():
 
         if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
             if rider.reg_status != 'done':
+                if rider.reg_status == 'none':
+                    rider.reg_status = 'msisdn'
+                    db.session.commit()
                 return register(rider, data)
             unfinished_booking = Booking.query.filter(Booking.rider_id==rider.id, Booking.booking_status!='done').first()
             db.session.delete(unfinished_booking)
