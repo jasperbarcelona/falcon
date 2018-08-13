@@ -105,7 +105,7 @@ def facebook_quick_reply_pickup(user_id, message):
     }
     resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
 
-def facebook_quick_reply_pickup(user_id, message):
+def facebook_quick_reply_destination(user_id, message):
     data = {
         "messaging_type": 'RESPONSE',
         "recipient": {'id': user_id},
