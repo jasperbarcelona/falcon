@@ -296,7 +296,7 @@ def messenger_webhook():
 
         if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
             if rider.reg_status != 'done':
-                return register(rider)
+                return register(rider, data)
             new_booking = Booking(
                 rider_id=rider.id,
                 rider_facebook_id=sender_id,
@@ -311,7 +311,7 @@ def messenger_webhook():
             return jsonify(
                 success = True
                 ),200
-    return register(rider)
+    return register(rider, data)
 
 
 @app.route('/db/rebuild',methods=['GET','POST'])
