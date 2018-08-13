@@ -361,8 +361,9 @@ def messenger_webhook():
                     db.session.commit()
                 return register(rider, data)
             unfinished_booking = Booking.query.filter(Booking.rider_id==rider.id, Booking.booking_status!='done').first()
-            db.session.delete(unfinished_booking)
-            db.session.commit()
+            if unfinished_booking or unfinished_booking != None:
+                db.session.delete(unfinished_booking)
+                db.session.commit()
             new_booking = Booking(
                 rider_id=rider.id,
                 rider_facebook_id=sender_id,
