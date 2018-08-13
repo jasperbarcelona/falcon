@@ -387,7 +387,7 @@ def messenger_webhook():
             return jsonify(
                 success = True
                 ),200
-        if 'attachments' not in data['entry'][0]['messaging'][0]:
+        if 'attachments' not in data['entry'][0]['messaging'][0]['message']:
             if booking.booking_status == 'pickup_data':
                 content = 'Please pin your pickup location.'
                 facebook_quick_reply_pickup(sender_id,content)
@@ -397,9 +397,9 @@ def messenger_webhook():
             return jsonify(
                 success = True
                 ),200
-        if data['entry'][0]['messaging'][0]['attachments'][0]['type'] != 'location':
+        if data['entry'][0]['messaging'][0]['messsage']['attachments'][0]['type'] != 'location':
             if booking.booking_status == 'pickup_data':
-                content = 'Please pin your pickup location here.'
+                content = 'Please pin your pickup location.'
                 facebook_quick_reply_pickup(sender_id,content)
             elif booking.booking_status == 'destination_data':
                 content = 'Please pin your destination.'
