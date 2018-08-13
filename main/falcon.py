@@ -167,7 +167,7 @@ def get_user_name(sender_id):
     data = r.json()
     return data
 
-def register(rider):
+def register(rider, data):
     if rider.reg_status == 'msisdn':
         if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
             msisdn = data['entry'][0]['messaging'][0]['message']['quick_reply']['payload']
