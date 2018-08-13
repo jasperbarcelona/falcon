@@ -289,72 +289,77 @@ def index():
 @app.route('/facebook/webhook',methods=['GET','POST'])
 @nocache
 def messenger_webhook():
-    return jsonify(
-        success = True
-        ),200
-    # if request.method == 'GET':
-    #     data = flask.request.args.to_dict()
-    #     verify_token = '1214'
+    if request.method == 'GET':
+        data = flask.request.args.to_dict()
+        verify_token = '1214'
 
-    #     if data['hub.verify_token'] == verify_token:
-    #         return data['hub.challenge']
+        if data['hub.verify_token'] == verify_token:
+            return data['hub.challenge']
 
-    # data = request.json
+    data = request.json
 
-    # sender_id = data['entry'][0]['messaging'][0]['sender']['id']
+    sender_id = data['entry'][0]['messaging'][0]['sender']['id']
 
-    # # student = Student.query.filter_by(student_no=message).first()
-    # rider = Rider.query.filter_by(facebook_id=sender_id).first()
-    # if not rider or rider == None:
-    #     rider = Rider(
-    #         facebook_id=sender_id,
-    #         reg_status='none',
-    #         created_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
-    #         )
-    #     db.session.add(rider)
-    #     db.session.commit()
+    # student = Student.query.filter_by(student_no=message).first()
+    rider = Rider.query.filter_by(facebook_id=sender_id).first()
+    if not rider or rider == None:
+        rider = Rider(
+            facebook_id=sender_id,
+            reg_status='none',
+            created_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
+            )
+        db.session.add(rider)
+        db.session.commit()
 
-    # if 'postback' in data['entry'][0]['messaging'][0]:
-    #     if data['entry'][0]['messaging'][0]['postback']['payload'] == 'GET_STARTED_PAYLOAD':
-    #         if rider.reg_status == 'none':
-    #             user_info = get_user_name(sender_id)
-    #             rider.first_name = user_info['first_name']
-    #             rider.last_name = user_info['last_name']
-    #             rider.reg_status = 'msisdn'
-    #             content = 'Hi, %s! Looks like it\'s your first time here. Let\'s get to know each other first, what\'s your mobile number?' % rider.first_name
-    #             facebook_quick_reply_msisdn(sender_id,content)
-    #             db.session.commit()
-    #             return jsonify(
-    #                 success = True
-    #                 ),200
+    if 'postback' in data['entry'][0]['messaging'][0]:
+        if data['entry'][0]['messaging'][0]['postback']['payload'] == 'GET_STARTED_PAYLOAD':
+            if rider.reg_status == 'none':
+                user_info = get_user_name(sender_id)
+                rider.first_name = user_info['first_name']
+                rider.last_name = user_info['last_name']
+                rider.reg_status = 'msisdn'
+                content = 'Hi, %s! Looks like it\'s your first time here. Let\'s get to know each other first, what\'s your mobile number?' % rider.first_name
+                facebook_quick_reply_msisdn(sender_id,content)
+                db.session.commit()
+                return jsonify(
+                    success = True
+                    ),200
 
-    #         if rider.reg_status != 'done':
-    #             return register(rider, data)
+            if rider.reg_status != 'done':
+                return register(rider, data)
 
-    #         content = 'Welcome back, %s! We missed you. Just tap "Book a Ride" below to start.' % rider.first_name
-    #         facebook_reply(sender_id,content)
-    #         return jsonify(
-    #             success = True
-    #             ),200
+            content = 'Welcome back, %s! We missed you. Just tap "Book a Ride" below to start.' % rider.first_name
+            facebook_reply(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
 
-    #     if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
-    #         if rider.reg_status != 'done':
-    #             return register(rider, data)
-    #         new_booking = Booking(
-    #             rider_id=rider.id,
-    #             rider_facebook_id=sender_id,
-    #             date=datetime.datetime.now().strftime('%B %d, %Y'),
-    #             booking_status='pickup_data',
-    #             created_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
-    #             )
-    #         db.session.add(new_booking)
-    #         db.session.commit()
-    #         content = 'Where do you want to be picked up?'
-    #         facebook_quick_reply_pickup(sender_id,content)
-    #         return jsonify(
-    #             success = True
-    #             ),200
-    # return register(rider, data)
+        if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
+            if rider.reg_status != 'done':
+                return register(rider, data)
+            new_booking = Booking(
+                rider_id=rider.id,
+                rider_facebook_id=sender_id,
+                date=datetime.datetime.now().strftime('%B %d, %Y'),
+                booking_status='pickup_data',
+                created_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
+                )
+            db.session.add(new_booking)
+            db.session.commit()
+            content = 'Where do you want to be picked up?'
+            facebook_quick_reply_pickup(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
+            
+    if rider.status == 'done':
+        content = 'To start looking for drivers, please click "Book a Ride" below.'
+        facebook_reply(sender_id,content)
+        return jsonify(
+            success = True
+            ),200
+
+    return register(rider, data)
 
 
 
