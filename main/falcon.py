@@ -368,6 +368,9 @@ def messenger_webhook():
         if 'attachments' not in data['entry'][0]['messaging'][0]['message']:
             content = 'Please attach a photo of your valid ID/school ID.'
             facebook_reply(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
         image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
         rider.id_path = image
         rider.reg_status = 'selfie'
@@ -382,6 +385,9 @@ def messenger_webhook():
         if 'attachments' not in data['entry'][0]['messaging'][0]['message']:
             content = 'Please attach a photo of you holding your valid ID/school ID.'
             facebook_reply(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
         image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
         rider.selfie_path = image
         rider.reg_status = 'done'
