@@ -351,8 +351,8 @@ def messenger_webhook():
             return jsonify(
                 success = True
                 ),200
-            
-    if rider.status == 'done':
+
+    if rider.reg_status == 'done':
         content = 'To start looking for drivers, please click "Book a Ride" below.'
         facebook_reply(sender_id,content)
         return jsonify(
