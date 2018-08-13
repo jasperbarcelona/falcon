@@ -392,6 +392,14 @@ def messenger_webhook():
                 content = 'Please pin your pickup location.'
                 facebook_quick_reply_pickup(sender_id,content)
             elif booking.booking_status == 'destination_data':
+                if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
+                    booking.booking_status = 'pickup_data'
+                    db.session.commit()
+                    content = 'Where do you want to be picked up?'
+                    facebook_quick_reply_pickup(sender_id,content)
+                    return jsonify(
+                        success = True
+                        ),200
                 content = 'Please pin your destination.'
                 facebook_quick_reply_destination(sender_id,content)
             return jsonify(
@@ -402,6 +410,14 @@ def messenger_webhook():
                 content = 'Please pin your pickup location.'
                 facebook_quick_reply_pickup(sender_id,content)
             elif booking.booking_status == 'destination_data':
+                if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
+                    booking.booking_status = 'pickup_data'
+                    db.session.commit()
+                    content = 'Where do you want to be picked up?'
+                    facebook_quick_reply_pickup(sender_id,content)
+                    return jsonify(
+                        success = True
+                        ),200
                 content = 'Please pin your destination.'
                 facebook_quick_reply_destination(sender_id,content)
             return jsonify(
@@ -418,14 +434,6 @@ def messenger_webhook():
                 success = True
                 ),200
         elif booking.booking_status == 'destination_data':
-            if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
-                booking.booking_status = 'pickup_data'
-                db.session.commit()
-                content = 'Where do you want to be picked up?'
-                facebook_quick_reply_pickup(sender_id,content)
-                return jsonify(
-                    success = True
-                    ),200
             booking.destination_lat = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['coordinates']['lat']
             booking.destination_long = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['coordinates']['long']
             booking.booking_status = 'calculate'
