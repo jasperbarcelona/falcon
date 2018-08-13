@@ -169,10 +169,10 @@ def get_user_name(sender_id):
 
 def register(rider, data):
     if rider.reg_status == 'msisdn':
-        # if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
-        msisdn = data['entry'][0]['messaging'][0]['message']['quick_reply']['payload']
-        # else:
-        #     msisdn = data['entry'][0]['messaging'][0]['message']['text']
+        if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
+            msisdn = data['entry'][0]['messaging'][0]['message']['quick_reply']['payload']
+        else:
+            msisdn = data['entry'][0]['messaging'][0]['message']['text']
         rider.msisdn = msisdn
         rider.reg_status = 'svc'
         db.session.commit()
@@ -296,7 +296,10 @@ def messenger_webhook():
 
         if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
             if rider.reg_status != 'done':
-                return register(rider, data)
+                rider.reg_status = 'msisdn'
+                db.session.commit()
+                content = 'Let\'s finish with your registration first. What\'s your mobile number?'
+                facebook_quick_reply_msisdn(sender_id,content)
             new_booking = Booking(
                 rider_id=rider.id,
                 rider_facebook_id=sender_id,
@@ -311,7 +314,83 @@ def messenger_webhook():
             return jsonify(
                 success = True
                 ),200
-    return register(rider, data)
+
+    if rider.reg_status == 'msisdn':
+        if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
+            msisdn = data['entry'][0]['messaging'][0]['message']['quick_reply']['payload']
+        else:
+            msisdn = data['entry'][0]['messaging'][0]['message']['text']
+        rider.msisdn = msisdn
+        rider.reg_status = 'svc'
+        db.session.commit()
+        svc = SVC(
+            user_id = rider.id,
+            facebook_id = rider.facebook_id,
+            token = str(uuid.uuid4().fields[-1])[:6],
+            created_at = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
+            )
+        db.session.add(svc)
+        db.session.commit()
+        send_svc(rider.msisdn,svc.token)
+        content = 'We sent a one time verification code to your mobile number. Please enter the code below and click send.'
+        facebook_quick_reply_svc(sender_id,content)
+        return jsonify(
+            success = True
+            ),200
+
+    if rider.reg_status == 'svc':
+        if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
+            rider.reg_status = 'msisdn'
+            db.session.commit()
+            content = 'What\'s your mobile number?'
+            facebook_quick_reply_msisdn(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
+        svc = data['entry'][0]['messaging'][0]['message']['text']
+        svc = SVC.query.filter_by(user_id=rider.id, token=svc).first()
+        if not svc or svc == None:
+            content = 'Invalid verification code. Please try again.'
+            facebook_quick_reply_svc(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
+        db.session.delete(svc)
+        rider.reg_status = 'id_pic'
+        db.session.commit()
+        content = 'Phone verification successful! You\'re almost there, we just need a picture of one (1) valid ID/school ID for the safety of our drivers.'
+        facebook_reply(sender_id,content)
+        return jsonify(
+            success = True
+            ),200
+
+    if rider.reg_status == 'id_pic':
+        if 'attachments' not in data['entry'][0]['messaging'][0]['message']:
+            content = 'Please attach a photo of your valid ID/school ID.'
+            facebook_reply(sender_id,content)
+        image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
+        rider.id_path = image
+        rider.reg_status = 'selfie'
+        db.session.commit()
+        content = 'Last step! Please send a selfie of you holding the valid ID you just sent us.'
+        facebook_reply(sender_id,content)
+        return jsonify(
+            success = True
+            ),200
+
+    if rider.reg_status == 'selfie':
+        if 'attachments' not in data['entry'][0]['messaging'][0]['message']:
+            content = 'Please attach a photo of you holding your valid ID/school ID.'
+            facebook_reply(sender_id,content)
+        image = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['url']
+        rider.selfie_path = image
+        rider.reg_status = 'done'
+        db.session.commit()
+        content = 'Okay, we\'re good to go! Just tap "Book a Ride" below.'
+        facebook_quick_reply()
+        return jsonify(
+            success = True
+            ),200
 
 
 @app.route('/db/rebuild',methods=['GET','POST'])
