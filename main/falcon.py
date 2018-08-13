@@ -271,7 +271,7 @@ def register(rider, data):
         rider.reg_status = 'done'
         db.session.commit()
         content = 'Okay, we\'re good to go! Just tap "Book a Ride" below.'
-        facebook_quick_reply()
+        facebook_reply(sender_id, content)
         return jsonify(
             success = True
             ),200
@@ -327,7 +327,7 @@ def messenger_webhook():
 
             if rider.reg_status != 'done':
                 return register(rider, data)
-                
+
             content = 'Welcome back, %s! We missed you. Just tap "Book a Ride" below to start.' % rider.first_name
             facebook_reply(sender_id,content)
             return jsonify(
