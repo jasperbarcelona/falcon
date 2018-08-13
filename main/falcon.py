@@ -170,6 +170,12 @@ def get_user_name(sender_id):
 def register(rider, data):
     sender_id = data['entry'][0]['messaging'][0]['sender']['id']
     if rider.reg_status == 'msisdn':
+        if 'message' not in data['entry'][0]['messaging'][0]:
+            content = 'Let\'s finish up with your registration first. What\'s your mobile number?'
+            facebook_quick_reply_msisdn(sender_id,content)
+            return jsonify(
+            success = True
+            ),200
         if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
             msisdn = data['entry'][0]['messaging'][0]['message']['quick_reply']['payload']
         else:
@@ -193,6 +199,12 @@ def register(rider, data):
             ),200
 
     if rider.reg_status == 'svc':
+        if 'message' not in data['entry'][0]['messaging'][0]:
+            content = 'Let\'s finish up with your registration first. Please enter the verification code we sent to your mobile number.'
+            facebook_quick_reply_msisdn(sender_id,content)
+            return jsonify(
+            success = True
+            ),200
         if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
             rider.reg_status = 'msisdn'
             db.session.commit()
@@ -219,8 +231,14 @@ def register(rider, data):
             ),200
 
     if rider.reg_status == 'id_pic':
+        if 'message' not in data['entry'][0]['messaging'][0]:
+            content = 'Let\'s finish up with your registration first. Please send a photo of your valid ID/school ID.'
+            facebook_quick_reply_msisdn(sender_id,content)
+            return jsonify(
+            success = True
+            ),200
         if 'attachments' not in data['entry'][0]['messaging'][0]['message']:
-            content = 'Please attach a photo of your valid ID/school ID.'
+            content = 'Please send a photo of your valid ID/school ID.'
             facebook_reply(sender_id,content)
             return jsonify(
                 success = True
@@ -236,8 +254,14 @@ def register(rider, data):
             ),200
 
     if rider.reg_status == 'selfie':
+        if 'message' not in data['entry'][0]['messaging'][0]:
+            content = 'Let\'s finish up with your registration first. Please send a selfie of you holding your valid ID/school ID.'
+            facebook_quick_reply_msisdn(sender_id,content)
+            return jsonify(
+            success = True
+            ),200
         if 'attachments' not in data['entry'][0]['messaging'][0]['message']:
-            content = 'Please attach a photo of you holding your valid ID/school ID.'
+            content = 'Please send a photo of you holding your valid ID/school ID.'
             facebook_reply(sender_id,content)
             return jsonify(
                 success = True
