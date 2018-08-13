@@ -73,7 +73,7 @@ class Rider(db.Model):
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
     address = db.Column(db.Text())
-    msisdn = db.Column(db.String(20))
+    msisdn = db.Column(db.Text())
     id_path = db.Column(db.Text())
     selfie_path = db.Column(db.Text())
     reg_status = db.Column(db.String(20))
