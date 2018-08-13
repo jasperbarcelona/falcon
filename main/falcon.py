@@ -201,7 +201,7 @@ def register(rider, data):
     if rider.reg_status == 'svc':
         if 'message' not in data['entry'][0]['messaging'][0]:
             content = 'Let\'s finish up with your registration first. Please enter the verification code we sent to your mobile number.'
-            facebook_quick_reply_msisdn(sender_id,content)
+            facebook_reply(sender_id,content)
             return jsonify(
             success = True
             ),200
@@ -233,7 +233,7 @@ def register(rider, data):
     if rider.reg_status == 'id_pic':
         if 'message' not in data['entry'][0]['messaging'][0]:
             content = 'Let\'s finish up with your registration first. Please send a photo of your valid ID/school ID.'
-            facebook_quick_reply_msisdn(sender_id,content)
+            facebook_reply(sender_id,content)
             return jsonify(
             success = True
             ),200
@@ -256,7 +256,7 @@ def register(rider, data):
     if rider.reg_status == 'selfie':
         if 'message' not in data['entry'][0]['messaging'][0]:
             content = 'Let\'s finish up with your registration first. Please send a selfie of you holding your valid ID/school ID.'
-            facebook_quick_reply_msisdn(sender_id,content)
+            facebook_reply(sender_id,content)
             return jsonify(
             success = True
             ),200
@@ -313,14 +313,23 @@ def messenger_webhook():
 
     if 'postback' in data['entry'][0]['messaging'][0]:
         if data['entry'][0]['messaging'][0]['postback']['payload'] == 'GET_STARTED_PAYLOAD':
-            if rider.reg_status != 'done':
+            if rider.reg_status == 'none':
                 user_info = get_user_name(sender_id)
                 rider.first_name = user_info['first_name']
                 rider.last_name = user_info['last_name']
                 rider.reg_status = 'msisdn'
-                db.session.commit()
                 content = 'Hi, %s! Looks like it\'s your first time here. Let\'s get to know each other first, what\'s your mobile number?' % rider.first_name
                 facebook_quick_reply_msisdn(sender_id,content)
+                db.session.commit()
+                return jsonify(
+                    success = True
+                    ),200
+
+            if rider.reg_status != 'done':
+                return register(rider, data)
+                
+            content = 'Welcome back, %s! We missed you. Just tap "Book a Ride" below to start.' % rider.first_name
+            facebook_reply(sender_id,content)
             return jsonify(
                 success = True
                 ),200
