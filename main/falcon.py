@@ -335,8 +335,10 @@ def calculate_fare(booking):
     r = requests.post(MAPQUEST_URL,params=params,json=data)
     data = r.json()
     miles = data['distance'][1]
+    secs = data['time'][1]
+    minutes = secs/60
     km = float(miles) * 1.60934
-    fare = (km*14)+40
+    fare = (km*14)+(minutes*2)+40
 
     content = 'Your fair is PHP %s. Would you like to continue?' % '{0:.2f}'.format(round(fare))
     facebook_quick_reply_fare(booking.rider_facebook_id,content)
