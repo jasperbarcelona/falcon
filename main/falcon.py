@@ -193,7 +193,8 @@ def register(rider):
 
     if rider.reg_status == 'svc':
         if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
-            rider.reg_status = 'msisdn':
+            rider.reg_status = 'msisdn'
+            db.session.commit()
             content = 'What\'s your mobile number?'
             facebook_quick_reply_msisdn(sender_id,content)
             return jsonify(
