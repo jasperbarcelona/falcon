@@ -169,10 +169,10 @@ def get_user_name(sender_id):
 
 def register(rider, data):
     if rider.reg_status == 'msisdn':
-        if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
-            msisdn = data['entry'][0]['messaging'][0]['message']['quick_reply']['payload']
-        else:
-            msisdn = data['entry'][0]['messaging'][0]['message']['text']
+        # if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
+        msisdn = data['entry'][0]['messaging'][0]['message']['quick_reply']['payload']
+        # else:
+        #     msisdn = data['entry'][0]['messaging'][0]['message']['text']
         rider.msisdn = msisdn
         rider.reg_status = 'svc'
         db.session.commit()
