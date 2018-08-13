@@ -105,6 +105,26 @@ def facebook_quick_reply_pickup(user_id, message):
     }
     resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
 
+def facebook_quick_reply_pickup(user_id, message):
+    data = {
+        "messaging_type": 'RESPONSE',
+        "recipient": {'id': user_id},
+        "message": {
+        'text': message,
+        "quick_replies":[
+          {
+            "content_type":"location"
+          },
+          {
+            "content_type":"text",
+            "title":'Change Pickup Location',
+            "payload":'change_pickup'
+            }
+        ]
+        },
+    }
+    resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
+
 def generate_clone_svc():
     unique = False
     while unique == False:
@@ -337,6 +357,9 @@ def messenger_webhook():
         if data['entry'][0]['messaging'][0]['postback']['payload'] == 'book_payload':
             if rider.reg_status != 'done':
                 return register(rider, data)
+            unfinished_booking = Booking.query.filter(Booking.rider_id==rider.id, Booking.booking_status!='done').first()
+            db.session.delete(unfinished_booking)
+            db.session.commit()
             new_booking = Booking(
                 rider_id=rider.id,
                 rider_facebook_id=sender_id,
@@ -353,11 +376,51 @@ def messenger_webhook():
                 ),200
 
     if rider.reg_status == 'done':
-        content = 'To start looking for drivers, please click "Book a Ride" below.'
-        facebook_reply(sender_id,content)
-        return jsonify(
-            success = True
-            ),200
+        booking = Booking.query.filter(Booking.rider_id==rider.id, Booking.booking_status!='done').first()
+        if not booking or booking == None or 'attachments' not in data['entry'][0]['messaging'][0]:
+            content = 'To start looking for drivers, please click "Book a Ride" below.'
+            facebook_reply(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
+        if data['entry'][0]['messaging'][0]['attachments'][0]['type'] != 'location':
+            if booking.booking_status == 'pickup_data':
+                content = 'Please pin your pickup location.'
+                facebook_quick_reply_pickup(sender_id,content)
+            elif booking.booking_status == 'destination_data':
+                content = 'Please pin your destination.'
+                facebook_quick_reply_destination(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
+        if booking.booking_status == 'pickup_data':
+            booking.pickup_lat = data['entry'][0]['messaging'][0]['attachments'][0]['payload']['coordinates']['lat']
+            booking.pickup_long = data['entry'][0]['messaging'][0]['attachments'][0]['payload']['coordinates']['long']
+            booking.booking_status = 'destination_data'
+            db.session.commit()
+            content = 'Where do you want to go?'
+            facebook_quick_reply_destination(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
+        elif booking.booking_status == 'destination_data':
+            if 'quick_reply' in data['entry'][0]['messaging'][0]['message']:
+                booking.booking_status = 'pickup_data'
+                db.session.commit()
+                content = 'Where do you want to be picked up?'
+                facebook_quick_reply_pickup(sender_id,content)
+                return jsonify(
+                    success = True
+                    ),200
+            booking.destination_lat = data['entry'][0]['messaging'][0]['attachments'][0]['payload']['coordinates']['lat']
+            booking.destination_long = data['entry'][0]['messaging'][0]['attachments'][0]['payload']['coordinates']['long']
+            booking.booking_status = 'calculate'
+            db.session.commit()
+            content = 'Calculating fare...'
+            facebook_reply(sender_id,content)
+            return jsonify(
+                success = True
+                ),200
 
     return register(rider, data)
 
