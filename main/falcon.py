@@ -44,6 +44,8 @@ APP_ID = 'EGXMuB5eEgCMLTKxExieqkCGeGeGuBon'
 APP_SECRET = 'f3e1ab30e23ea7a58105f058318785ae236378d1d9ebac58fe8b42e1e239e1c3'
 PASSPHRASE = '24BUubukMQ'
 SHORTCODE = '21588479'
+MAPQUEST_API_KEY = 'tYvwHGIn327Vjzkk7e7spoSxImgvrGvz'
+MAPQUEST_URL = 'http://open.mapquestapi.com/directions/v2/routematrix'
 
 
 class BubbleAdmin(sqla.ModelView):
@@ -119,6 +121,28 @@ def facebook_quick_reply_destination(user_id, message):
             "content_type":"text",
             "title":'Change Pickup Location',
             "payload":'change_pickup'
+            }
+        ]
+        },
+    }
+    resp = requests.post('https://graph.facebook.com/v2.6/me/messages?access_token=' + ACCESS_TOKEN, json=data)
+
+def facebook_quick_reply_fare(user_id, message):
+    data = {
+        "messaging_type": 'RESPONSE',
+        "recipient": {'id': user_id},
+        "message": {
+        'text': message,
+        "quick_replies":[
+            {
+            "content_type":"text",
+            "title":'Book',
+            "payload":'proceed_with_booking'
+            },
+            {
+            "content_type":"text",
+            "title":'Cancel',
+            "payload":'cancel_booking'
             }
         ]
         },
@@ -296,6 +320,31 @@ def register(rider, data):
             success = True
             ),200
 
+def calculate_fare(booking):
+    params = dict(
+        key=MAPQUEST_API_KEY
+    )
+
+    data = {
+        'locations': [
+        '%s,%s' % (booking.pickup_lat, booking.pickup_long),
+        '%s,%s' % (booking.destination_lat, booking.destination_long)
+        ]
+    }
+
+    r = requests.post(MAPQUEST_URL,params=params,json=data)
+    data = r.json()
+    miles = data['distance'][1]
+    km = float(miles) * 1.60934
+    fare = (km*14)+40
+
+    content = 'Your fair is PHP %s. Would you like to continue?' % '{0:.2f}'.format(round(fare))
+    facebook_quick_reply_fare(booking.rider_facebook_id,content)
+
+    return jsonify(
+        success = True
+        ),200
+
 
 @app.route('/',methods=['GET','POST'])
 @nocache
@@ -438,11 +487,10 @@ def messenger_webhook():
             booking.destination_long = data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload']['coordinates']['long']
             booking.booking_status = 'calculate'
             db.session.commit()
-            content = 'Calculating fare...'
-            facebook_reply(sender_id,content)
-            return jsonify(
-                success = True
-                ),200
+            
+            # content = 'Calculating fare...'
+            # facebook_reply(sender_id,content)
+            return calculate_fare(booking)
 
     return register(rider, data)
 

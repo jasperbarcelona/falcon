@@ -93,8 +93,9 @@ class Booking(db.Model):
     fare = db.Column(db.Integer())
     date = db.Column(db.String(50))
     book_time = db.Column(db.String(50))
-    driver_arrival_time = db.Column(db.String(50))
-    dest_arrival_time = db.Column(db.String(50))
+    match_time = db.Column(db.String(50))
+    pickup_time = db.Column(db.String(50))
+    arrival_time = db.Column(db.String(50))
     booking_status = db.Column(db.String(30))
     created_at = db.Column(db.String(50))
 
