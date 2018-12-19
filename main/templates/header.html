@@ -1,0 +1,17 @@
+<div id="header">
+        <div id="header-left">
+                <!-- <img id="header-logo" src="../static/images/logos/lgmc.png"> -->
+                <a href="/"><span id="header-company-name">Zundo Admin Panel</span></a>
+        </div>
+        <div id="header-right">
+                <div id="profile-options">
+                        <span id="profile-settings-btn" onclick="user_profile()">PROFILE</span>
+                        <elem id="separator">|</elem>
+                        <a href="/logout"><span id="logout-btn">LOGOUT</span></a>
+                </div>
+                <div id="user-icon-container">
+                        <span id="header-user-name">{{ user.name }}</span>
+                        <span><img id="header-display-pic" src="../static/images/users/default.png"></span>
+                </div>
+        </div>
+</div>

@@ -52,7 +52,6 @@ class BubbleAdmin(sqla.ModelView):
     column_display_pk = True
 
 admin = Admin(app, name='bubble')
-admin.add_view(BubbleAdmin(Client, db.session))
 admin.add_view(BubbleAdmin(AdminUser, db.session))
 admin.add_view(BubbleAdmin(Driver, db.session))
 admin.add_view(BubbleAdmin(Rider, db.session))
@@ -338,7 +337,7 @@ def calculate_fare(booking):
     secs = data['time'][1]
     minutes = secs/60
     km = float(miles) * 1.60934
-    fare = (km*14)+(minutes*2)+40
+    fare = (km*14)+(minutes*2)+40   
 
     content = 'Your fair is PHP %s. Would you like to continue?' % '{0:.2f}'.format(round(fare))
     facebook_quick_reply_fare(booking.rider_facebook_id,content)
@@ -351,10 +350,40 @@ def calculate_fare(booking):
 @app.route('/',methods=['GET','POST'])
 @nocache
 def index():
-    return jsonify(
-        status='success',
-        message='working'
-        ),200
+    if not session:
+        return redirect('/login')
+    user = AdminUser.query.filter_by(id=session['user_id']).first()
+    rider_count = Rider.query.count()
+    driver_count = Driver.query.count()
+    booking_count = Booking.query.count()
+    day_booking_count = Booking.query.filter_by(date=datetime.datetime.now().strftime('%B %d, %Y')).count()
+    return flask.render_template(
+        'index.html',
+        rider_count=rider_count,
+        driver_count=driver_count,
+        booking_count=booking_count,
+        day_booking_count=day_booking_count,
+        user=user
+        )
+
+
+@app.route('/login',methods=['GET','POST'])
+@nocache
+def login_page():
+    if session:
+        return redirect('/')
+    return flask.render_template('login.html')
+
+
+@app.route('/user/authenticate',methods=['GET','POST'])
+def authenticate_user():
+    data = flask.request.form.to_dict()
+    user = AdminUser.query.filter_by(email=data['user_email'],password=data['user_password']).first()
+    if not user or user == None:
+        return jsonify(status='failed', error='Invalid email or password.')
+    session['user_name'] = user.name
+    session['user_id'] = user.id
+    return jsonify(status='success', error=''),200
 
 
 @app.route('/facebook/webhook',methods=['GET','POST'])
@@ -502,6 +531,18 @@ def messenger_webhook():
 def rebuild_database():
     db.drop_all()
     db.create_all()
+
+    admin = AdminUser(
+        email='jasper@pisara.tech',
+        password='password123',
+        temp_pw='password1234',
+        name='Jasper Barcelona',
+        role='Administrator',
+        created_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
+        )
+
+    db.session.add(admin)
+    db.session.commit()
 
     return jsonify(
         status = 'success',

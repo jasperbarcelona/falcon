@@ -30,25 +30,13 @@ def SWJsonify(*args, **kwargs):
          indent=None if request.is_xhr else 2), mimetype='application/json')
         # from https://github.com/mitsuhiko/flask/blob/master/flask/helpers.py
 
-class Client(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
-    client_no = db.Column(db.String(32), unique=True)
-    name = db.Column(db.String(50))
-    app_id = db.Column(db.Text())
-    app_secret = db.Column(db.Text())
-    passphrase = db.Column(db.Text())
-    shortcode = db.Column(db.String(30))
-    created_at = db.Column(db.String(50))
-
 class AdminUser(db.Model):
     id = db.Column(db.Integer,primary_key=True)
-    client_no = db.Column(db.String(32))
     email = db.Column(db.String(60))
     password = db.Column(db.String(20))
     temp_pw = db.Column(db.String(20))
     name = db.Column(db.String(100))
     role = db.Column(db.String(30))
-    active_sort = db.Column(db.String(30))
     added_by_id = db.Column(db.Integer)
     added_by_name = db.Column(db.String(100))
     join_date = db.Column(db.String(50))

@@ -1,11 +1,9 @@
 function login(){
   $('#login-form-loader').show();
   $('#login-btn').button('loading');
-  client_no = $('#client_no').val();
   user_email = $('#user_email').val();
   user_password = $('#user_password').val();
   $.post('/user/authenticate',{
-    client_no:client_no,
   	user_email:user_email,
   	user_password:user_password
   },

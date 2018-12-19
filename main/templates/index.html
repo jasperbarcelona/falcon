@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="left-panel">
+	<div class="lower-panel-container">
+		<div id="navInbound" class="panel-nav-item active" onclick="show_inbound('reset')">
+			<i class="material-icons">dashboard</i>
+			<span class="nav-label">Dashboard</span>
+		</div>
+		<div id="navHistory" class="panel-nav-item" onclick="show_history('reset')">
+			<i class="material-icons">place</i>
+			<span class="nav-label">Bookings</span>
+		</div>
+		<div id="navCargo" class="panel-nav-item" onclick="show_cargo('reset')">
+			<i class="material-icons">person</i>
+			<span class="nav-label">Riders</span>
+		</div>
+		<div id="navReport" class="panel-nav-item" onclick="show_reports('reset')">
+			<i class="material-icons">group</i>
+			<span class="nav-label">Drivers</span>
+		</div>
+		<div id="navReport" class="panel-nav-item" onclick="show_reports('reset')">
+			<i class="material-icons">directions_car</i>
+			<span class="nav-label">Vehicles</span>
+		</div>
+		<div class="nav-separator"></div>
+	</div>
+</div>
+<div id="errorSnackbar" class="snackbar snackbar-error">
+	<div>
+		<span class="snackbar-message"></span>
+		<i id="closeCargoItemError" class="material-icons">&#xE5CD;</i>
+	</div>
+</div>
+<div id="successSnackbar" class="snackbar snackbar-success">
+	<div>
+		<span class="snackbar-message"></span>
+		<i id="closeReplySuccess" class="material-icons">&#xE5CD;</i>
+	</div>
+</div>
+<div id="searchLoader" class="hidden">
+	Loading..
+</div>
+<div class="content">
+	<div class="board-container col-xs-12 col-sm-6 col-md-4">
+		<div class="board"></div>
+	</div>
+	<div class="board-container col-xs-12 col-sm-6 col-md-4">
+		<div class="board"></div>
+	</div>
+	<div class="board-container col-xs-12 col-sm-6 col-md-4">
+		<div class="board"></div>
+	</div>
+	<div class="board-container col-xs-12 col-sm-6 col-md-4">
+		<div class="board"></div>
+	</div>
+	<div class="board-container col-xs-12 col-sm-6 col-md-4">
+		<div class="board"></div>
+	</div>
+</div>
+{% endblock %}

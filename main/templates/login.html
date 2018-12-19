@@ -1,0 +1,42 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" href="../static/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../static/css/login.css">
+		<link rel="shortcut icon" href="../static/images/logos/favicon.ico" type="image/x-icon">
+		<!-- <script src="//fast.eager.io/nH76uFjaDI.js"></script> -->
+		<title>Login</title>
+	</head>
+	<body>
+		<div id="login-intro" class="loading">
+			Loading..
+		</div>	
+		<div class="main">
+			<div class="container col-xs-12 col-sm-6">
+				<div id="logo-container" class="clickable">
+					LOGO HERE
+				</div>
+				<form id="login-form" class="col-xs-12 col-sm-10 col-lg-8">
+					<div class="sub-brand-container">
+						<span class="login-sub-brand">Login</span>
+						<div id="login-error-container"><span id="login-error"></span></div>
+					</div>
+					<div id="login-input-container">
+						<div id="login-form-loader" class="loading hidden">
+						</div>
+						<input type="email" data-class="input-label" id="user_email" class="form-control" placeholder="Email" autocomplete="off" />
+						<input type="password" data-class="input-label" id="user_password" class="form-control" placeholder="Password"/>
+					</div>
+					<button type="submit" id="login-btn" class="btn btn-primary" data-loading-text="Logging you in.." data-complete-text="Log In">Log In</button>
+				</form>
+				<span class="forgot-password clickable">Forgot your password?</span>
+			</div>
+		</div>
+	</body>
+	<script src="../static/js/jquery-1.11.0.min.js"></script>
+	<script src="../static/js/bootstrap.min.js"></script>
+	<script src="../static/js/floatlabels.min.js"></script>
+	<script src="../static/js/login_animations.js"></script>
+	<script src="../static/js/login_functions.js"></script>
+</html>
